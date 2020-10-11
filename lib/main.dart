@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 
 class MyObject {
   String title;
-  bool isSelected;
+  SelectedState isSelected;
   MyObject({this.title, this.isSelected});
 }
+
+enum SelectedState{ selected, unSelected }
 
 class MyAppBar extends StatelessWidget {
   MyAppBar({this.title});
@@ -41,21 +43,36 @@ class MyAppBar extends StatelessWidget {
 }
 
 class MyScaffold extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: MyScaffoldList(),
+      debugShowCheckedModeBanner: false,
+    );
+  }
+}
+
+class MyScaffoldList extends StatefulWidget {
 
   List<MyObject> _listMyObject = List<MyObject>();
 
   void _setupData() {
     _listMyObject = [];
     for(var i = 0; i < 10; i++) {
-      _listMyObject.add(MyObject(title: 'Oeschinen Lake Campground ${i + 1}', isSelected: false));
+      _listMyObject.add(MyObject(title: 'Oeschinen Lake Campground ${i + 1}', isSelected: SelectedState.unSelected));
     }
   }
 
   @override
-  Widget build(BuildContext context) {
-
+  State<StatefulWidget> createState() {
     _setupData();
+    return _MyScaffoldListState();
+  }
+}
 
+class _MyScaffoldListState extends State<MyScaffoldList> {
+  @override
+  Widget build(BuildContext context) {
     List<Widget> _buildCells(List<MyObject> data) {
       return List.generate(
         data.length, (index) => Container(
@@ -66,14 +83,18 @@ class MyScaffold extends StatelessWidget {
         margin: EdgeInsets.all(4.0),
         child: ListTile(
           title: Text('${data[index].title}',
-                  style: TextStyle(
-                      fontWeight: FontWeight.w500
-                  )
+              style: TextStyle(
+                  fontWeight: FontWeight.w500
+              )
           ),
           leading: Icon(Icons.label_important),
           trailing: Radio(
-            onChanged: (value) {
-
+            value: SelectedState.selected,
+            groupValue: data[index].isSelected,
+            onChanged: (SelectedState value) {
+              setState(() {
+                data[index].isSelected = value;
+              });
             },
           ),
         ),
@@ -109,31 +130,25 @@ class MyScaffold extends StatelessWidget {
         ],
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(8.0),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Flexible(
-                child:
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
+          padding: EdgeInsets.all(8.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Flexible(
                   child:
-                  Column(
-                    children: _buildCells(_listMyObject),
-                  ),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child:
+                    Column(
+                      children: _buildCells(widget._listMyObject),
+                    ),
+                  )
               )
-            )
-          ],
-        )
+            ],
+          )
       ),
     );
   }
 }
 
-void main() {
-  runApp(MaterialApp(
-    title: 'Flutter Tour',
-    home: MyScaffold(),
-    debugShowCheckedModeBanner: false,
-  ));
-}
+void main() => runApp(MyScaffold());
