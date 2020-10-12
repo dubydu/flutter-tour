@@ -1,3 +1,6 @@
+import 'dart:ffi';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class MyObject {
@@ -7,40 +10,6 @@ class MyObject {
 }
 
 enum SelectedState{ selected, unSelected }
-
-class MyAppBar extends StatelessWidget {
-  MyAppBar({this.title});
-
-  final Widget title;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 64,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.blue[500]
-      ),
-      child: Row(
-        children: <Widget>[
-          IconButton(
-              icon: Icon(Icons.menu),
-              tooltip: 'Navigation bar',
-              onPressed: null,
-          ),
-          Expanded(
-              child: title
-          ),
-          IconButton(
-              icon: Icon(Icons.search),
-              tooltip: 'Search',
-              onPressed: null
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 class MyScaffold extends StatelessWidget {
   @override
@@ -71,63 +40,91 @@ class MyScaffoldList extends StatefulWidget {
 }
 
 class _MyScaffoldListState extends State<MyScaffoldList> {
+  List<MyObject> _listMyObject = List<MyObject>();
+
+  void _setupData() {
+    _listMyObject = [];
+    for(var i = 0; i < 20; i++) {
+      _listMyObject.add(MyObject(title: 'Oeschinen Lake Campground ${i + 1}', isSelected: SelectedState.unSelected));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    _setupData();
     List<Widget> _buildCells(List<MyObject> data) {
       return List.generate(
         data.length, (index) => Container(
-        alignment: Alignment.center,
-        width: MediaQuery.of(context).size.width - 24,
-        height: 65.0,
+        width: MediaQuery.of(context).size.width - 16,
         color: Colors.white,
-        margin: EdgeInsets.all(4.0),
-        child: ListTile(
-          title: Text('${data[index].title}',
-              style: TextStyle(
-                  fontWeight: FontWeight.w500
+        margin: EdgeInsets.only(left: 0, top: 0, right: 0, bottom: 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ListTile(
+              leading: CircleAvatar(
+                backgroundColor: Colors.blueAccent,
+              ),
+              title: const Text(
+                  'Card title 1',
+                style: TextStyle(color: Colors.black, fontWeight: FontWeight.w600, fontSize: 20.0),
+              ),
+              subtitle: Text(
+                'Secondary Text',
+                style: TextStyle(color: Colors.black.withOpacity(0.6)),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(0.0),
+              child: Image(
+                image: AssetImage('assets/img_catalina.png'),
               )
-          ),
-          leading: Icon(Icons.label_important),
-          trailing: Radio(
-            value: SelectedState.selected,
-            groupValue: data[index].isSelected,
-            onChanged: (SelectedState value) {
-              setState(() {
-                data[index].isSelected = value;
-              });
-            },
-          ),
-        ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 0),
+              child: Text('Within subtitle property you can customize the typography by using the style property.'),
+            ),
+            ButtonBar(
+              alignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Padding(padding: const EdgeInsets.all(0),
+                  child: Row(
+                    children: [
+                      FlatButton(
+                        onPressed: () {
+                          // Perform some action
+                        },
+                        child: const Text('ACTION 1'),
+                      ),
+                      FlatButton(
+                        onPressed: () {
+                          // Perform some action
+                        },
+                        child: const Text('ACTION 2'),
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(Icons.share_rounded),
+                  splashColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
+                  onPressed: () {
+                })
+              ],
+            )
+          ],
+        )
       ),
       );
     }
 
     return Scaffold(
       bottomNavigationBar: BottomAppBar(
-        child: Row(
-          children: [
-            IconButton(icon: Icon(Icons.menu), onPressed: () {}),
-            Spacer(),
-            Spacer(),
-          ],
-        ),
+
       ),
       appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.menu_rounded),
-          color: Colors.amberAccent,
-          tooltip: 'Navigation menu',
-          onPressed: null,
-        ),
-        title: Text('Flutter Tour'),
-        actions: [
-          Icon(Icons.favorite),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: Icon(Icons.search),
-          ),
-          Icon(Icons.more_vert),
-        ],
+        title: Text('Flutter Tour')
       ),
       body: SingleChildScrollView(
           padding: EdgeInsets.all(8.0),
@@ -140,7 +137,7 @@ class _MyScaffoldListState extends State<MyScaffoldList> {
                     scrollDirection: Axis.horizontal,
                     child:
                     Column(
-                      children: _buildCells(widget._listMyObject),
+                      children: _buildCells(_listMyObject),
                     ),
                   )
               )
